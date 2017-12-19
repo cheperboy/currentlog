@@ -1,0 +1,37 @@
+----------
+setup cron
+crontab -e (hypothese current user is log as pi)
+Content:
+* * * * * /home/pi/currentlog/script/cron.sh >> ../log/cronlog.txt 2>&1
+
+----------------------------------
+setup supervisor for flask website
+Edit configuration file:
+/etc/supervisor/conf.d/currentlog.conf
+
+Content:
+[program:website-flask-currentlog]
+command = sudo /home/pi/currentlog/website/flask/bin/python /home/pi/currentlog/website/run.py
+stdout_logfile = /home/pi/currentlog/log/website-flask-currentlog.log
+stderr_logfile = /home/pi/currentlog/log/website-flask-currentlog-err.log
+
+pour redémarrer manuellement : sudo supervisorctl restart all
+
+---------------------------------
+Créer une nouvelle base de données
+
+1. Dans well_model.py ajouter ou décommenter #initialize_db puis appeler le fichier en ldc.
+2. Changer le propriétaire du fichier root->pi avec la commande : sudo chown pi mydb.db
+ 
+
+Erreur
+tant qu'aucun objet n'a été ajouté La base de donnée est vide et le script/site renvoi une erreur indiquant que la DB n'existe pas.
+
+----------------------------------
+CRON
+
+les deux commandes suivantes n'appellent pas le même CRON:
+sudo crontab -e
+crontab -e
+
+le cron qui fonctionne est celui appelé avec sudo et qui n'appelle pas cron.sh mais directement usbtoINO.py
