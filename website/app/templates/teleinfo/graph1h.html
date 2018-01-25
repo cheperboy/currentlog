@@ -1,0 +1,72 @@
+		<script type="text/javascript">
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+  var data = new google.visualization.DataTable();
+  
+  data.addColumn('datetime', 'Date');
+  data.addColumn('number', 'Puissance totale (W)');
+  data.addColumn('number', 'phase 1 (A)');
+  data.addColumn('number', 'phase 2 (A)');
+  data.addColumn('number', 'phase 3 (A)');
+{% for d in data_1h.row_data %}
+	data.addRow(
+		[new Date({{ d[0].year }}, {{ d[0].month-1 }}, {{ d[0].day }}, {{ d[0].hour+1 }}, {{ d[0].minute }}, {{ d[1] }} ), 
+		{{ d[2] }}, 
+		{{ d[3] }}, 
+		{{ d[4] }}, 
+		{{ d[5] }}
+	]);
+{% endfor %}
+	    
+  // dashboard.
+  var dash_container = document.getElementById('dashboard_div_1h'),
+    myDashboard = new google.visualization.Dashboard(dash_container);
+
+  // date range slider
+  var myDateSlider = new google.visualization.ControlWrapper({
+    controlType: 'ChartRangeFilter',
+    containerId: 'control_div_1h',
+    options: {
+		filterColumnLabel: 'Date',		
+		ui: {
+			chartOptions: {	height: 70}	
+		}
+	},
+ });
+ 
+  // Line chart visualization
+	var classicOptions = {
+		chartType : 'LineChart',
+		containerId : 'line_div_1h',
+		options: 
+		{
+			title: '',
+			isStacked: true,
+			height: 500,
+			series: {
+			  0: {targetAxisIndex: 0, type: 'line'},
+			  1: {targetAxisIndex: 1, type: 'bars'},
+			  2: {targetAxisIndex: 1, type: 'bars'},
+			  3: {targetAxisIndex: 1, type: 'bars'}
+			},
+			hAxis: {format: '{{ options.hour_format}}'},
+			lineWidth : '2',
+			vAxes: {
+			  0: {title: 'Puissance (W)', maxValue: 4000},
+			  1: {title: 'phases (A)', maxValue: 20}
+			}
+		}
+	}
+
+  var myLine = new google.visualization.ChartWrapper(classicOptions);
+  
+  myDashboard.bind(myDateSlider, myLine);
+  myDashboard.draw(data);
+}
+		</script>
+		<h2>Conso EDF 1h</h2>
+		<div id="dashboard_div_1h">
+			<div id="line_div_1h"></div>
+			<div id="control_div_1h"></div>
+		</div>
